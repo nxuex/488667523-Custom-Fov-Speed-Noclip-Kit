@@ -1,0 +1,78 @@
+local userInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+
+local noclip = false
+local originalCollisions = {}
+local screenGui
+local noclipLabel
+
+local function createUI()
+    if player.PlayerGui:FindFirstChild("NoclipUI") then
+        player.PlayerGui.NoclipUI:Destroy()
+    end
+
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "NoclipUI"
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+
+    noclipLabel = Instance.new("TextLabel")
+    noclipLabel.Size = UDim2.new(0.15, 0, 0.05, 0)
+    noclipLabel.Position = UDim2.new(0.85, 0, 0.1, 0)
+    noclipLabel.BackgroundTransparency = 1
+    noclipLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    noclipLabel.Font = Enum.Font.SourceSansBold
+    noclipLabel.TextScaled = true
+    noclipLabel.Text = "Noclip: OFF"
+    noclipLabel.Parent = screenGui
+end
+
+local function toggleNoclip()
+    local character = player.Character
+    if not character then return end
+
+    noclip = not noclip
+    noclipLabel.Text = noclip and "Noclip: ON" or "Noclip: OFF"
+
+    if noclip then
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") and not originalCollisions[part] then
+                originalCollisions[part] = part.CanCollide
+                part.CanCollide = false
+            end
+        end
+    else
+        for part, canCollide in pairs(originalCollisions) do
+            if part and part:IsA("BasePart") then
+                part.CanCollide = canCollide
+            end
+        end
+        table.clear(originalCollisions)
+    end
+end
+
+userInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.Y then
+        toggleNoclip()
+    end
+end)
+
+runService.Heartbeat:Connect(function()
+    local character = player.Character
+    if noclip and character then
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+player.CharacterAdded:Connect(function(newCharacter)
+    noclip = false
+    originalCollisions = {}
+    newCharacter:WaitForChild("HumanoidRootPart")
+    createUI()
+end)
+
+createUI()
