@@ -1,0 +1,61 @@
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local speedFast = 40
+local isFast = false
+local humanoid
+local defaultSpeed -- Stores the normal speed from the game
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false -- UI stays after respawn
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(0, 100, 0, 30) -- Small text size
+speedLabel.Position = UDim2.new(1, -110, 0.5, -15) -- Middle right
+speedLabel.BackgroundTransparency = 1 -- No background
+speedLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+speedLabel.TextScaled = true
+speedLabel.Text = "NORMAL"
+speedLabel.Parent = screenGui
+
+local function setupCharacter(character)
+    humanoid = character:WaitForChild("Humanoid")
+
+    defaultSpeed = humanoid.WalkSpeed
+    isFast = false
+    speedLabel.Text = "NORMAL"
+
+    RunService.RenderStepped:Connect(function()
+        if isFast then
+            humanoid.WalkSpeed = speedFast
+        end
+    end)
+end
+
+local function toggleSpeed()
+    if humanoid and humanoid.Parent then
+        isFast = not isFast
+        speedLabel.Text = isFast and "FAST" or "NORMAL"
+
+        if isFast then
+            humanoid.WalkSpeed = speedFast -- Lock speed at 40
+        else
+            humanoid.WalkSpeed = defaultSpeed -- Restore normal game speed (Shift sprinting works again)
+        end
+    end
+end
+
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.T then
+        toggleSpeed()
+    end
+end)
+
+if player.Character then
+    setupCharacter(player.Character)
+end
+
+player.CharacterAdded:Connect(setupCharacter)
