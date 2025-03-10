@@ -1,0 +1,24 @@
+local scripts = {
+    "https://raw.githubusercontent.com/nxuxe/-/refs/heads/main/Fov-MouseWheel",
+    "https://raw.githubusercontent.com/nxuxe/-/refs/heads/main/Toggle%20Speed",
+    "https://raw.githubusercontent.com/nxuxe/-/refs/heads/main/PDS-Alert-Kit-Test",
+    "https://raw.githubusercontent.com/nxuxe/-/refs/heads/main/PDS-Entities-box",
+    "https://raw.githubusercontent.com/nxuxe/-/refs/heads/main/PDS-Alerts-H-C"
+}
+
+for _, url in ipairs(scripts) do
+    task.wait(0.5) -- Prevent rate limiting
+
+    task.spawn(function()
+        local success, result = pcall(function()
+            local scriptContent = game:HttpGet(url, true)
+            return loadstring(scriptContent)()
+        end)
+
+        if not success then
+            warn("❌ Failed to load script from: " .. url .. " | Error: " .. tostring(result))
+        else
+            print("✅ Successfully loaded: " .. url)
+        end
+    end)
+end
