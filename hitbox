@@ -1,14 +1,5 @@
 Visible = true
 Size = 10
- 
-local old
-local self, k = ...
-if k == "Size" and self.Name == "HumanoidRootPart" then
-return Vector3.new(1, 2, 1)
-elseif k == "Size" and self.Name == "Head" then
-return Vector3.new(2, 1, 1)
-end
-return old(...)
 end)
  
 while wait(1) do
