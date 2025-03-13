@@ -2,7 +2,6 @@ Visible = true
 Size = 10
  
 local old
-old = hookfunction(getrawmetatable(game).__index, function(...)
 local self, k = ...
 if k == "Size" and self.Name == "HumanoidRootPart" then
 return Vector3.new(1, 2, 1)
